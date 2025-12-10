@@ -1,20 +1,22 @@
 package main
 
 import (
-	"net/http"
+	"go-backend/configs/database"
+	"go-backend/internal/user"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	r := gin.Default()
+	database.DatabaseConnection()
 
-	r.GET("/", func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, gin.H{
-			"status":  "OK",
-			"message": "Hello from letsgo",
-		})
-	})
+	r.GET("/health-check", user.Ping)
+	r.POST("/add-user", user.AddUser)
 
-	r.Run(":5689")
+	err := r.Run(":8080")
+
+	if err != nil {
+		panic(err)
+	}
 }
