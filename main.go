@@ -9,10 +9,11 @@ import (
 
 func main() {
 	r := gin.Default()
-	database.DatabaseConnection()
+	database.DbConnection()
 
 	r.GET("/health-check", user.Ping)
 	r.POST("/add-user", user.AddUser)
+	r.GET("/get-users", user.GetUsers)
 
 	err := r.Run(":8080")
 

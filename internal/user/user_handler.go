@@ -42,3 +42,44 @@ func AddUser(c *gin.Context) {
 		})
 	}
 }
+
+func GetUsers(c *gin.Context) {
+	rows, err := database.Db.Query("SELECT * FROM users")
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to get users",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	defer rows.Close()
+
+	var users []User
+
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.NAME, &user.EMAIL, &user.GENDER); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to scan user",
+				"error":   err.Error(),
+			})
+			return
+		}
+
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Row iteration error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+		"users":   users,
+	})
+}
