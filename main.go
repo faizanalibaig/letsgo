@@ -1,43 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
 
-	"letsgo/database"
-	"letsgo/utils"
-
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
+	"github.com/gin-gonic/gin"
 )
 
-var pool *pgxpool.Pool
-
 func main() {
-	var err error
-	err = godotenv.Load()
 
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
+	r := gin.Default()
 
-	pool, err = database.Connect()
-	if err != nil {
-		panic(err)
-	}
+	r.GET("/health-check", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "backend is running",
+		})
+	})
 
-	token, err := utils.GenerateToken("exampleUser")
-	if err != nil {
-		fmt.Println("Error generating token:", err)
-	} else {
-		fmt.Println("Generated Token:", token)
-	}
-
-	err = utils.VerifyToken(token)
-	if err != nil {
-		fmt.Println("Error verifying token:", err)
-	} else {
-		fmt.Println("Token is valid")
-	}
-
-	defer database.Close()
+	r.Run()
 }
