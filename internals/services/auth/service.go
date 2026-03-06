@@ -2,14 +2,14 @@ package auth
 
 import (
 	"net/http"
+	"open-lms/internals/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 type user struct {
-	ID     string   `json:"id"`
-	Name   string   `json:"name"`
 	Email  string   `json:"email"`
+    Password string   `json:"password"`
 }
 
 type login struct {
@@ -18,8 +18,8 @@ type login struct {
 }
 
 var users = []user{
-	{ID: "1", Name: "John Doe", Email: "john@gmail.com"},
-	{ID: "2", Name: "Jane Doe", Email: "jane@yahoo.com"},
+	{Email: "john@gmail.com", Password: "password123"},
+	{Email: "jane@yahoo.com", Password: "password456"},
 }
 
 func Register(c *gin.Context) {
@@ -28,6 +28,14 @@ func Register(c *gin.Context) {
 	if err := c.BindJSON(&newUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
+
+	hashedPassword, err := utils.HashPassword(newUser.Password)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+	newUser.Password = hashedPassword
 
 	users = append(users, newUser)
 	c.IndentedJSON(http.StatusOK, users)
@@ -40,6 +48,8 @@ func Login(c *gin.Context) {
 	if err := c.BindJSON(&newUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
+
+	// ok := utils.ComparePassword(user.Password, )
 
 	users = append(users, newUser)
 	c.IndentedJSON(http.StatusOK, users)

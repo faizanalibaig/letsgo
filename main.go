@@ -5,11 +5,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"open-lms/database"
 	"open-lms/internals/services/auth"
 )
 
+
 func main() {
 	r := gin.Default()
+
+	database.Connect()
 
 	r.GET("/health-check", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -21,5 +25,4 @@ func main() {
 		auth.Register(c)
 	})
 
-	r.Run()
-}
+	r.Run(":9090")}
