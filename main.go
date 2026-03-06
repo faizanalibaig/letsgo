@@ -25,4 +25,5 @@ func main() {
 		auth.Register(c)
 	})
 
-	r.Run(":9090")}
+	r.Run(":9090")
+}
